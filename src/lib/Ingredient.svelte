@@ -1,70 +1,52 @@
 <script lang="ts">
+	import { onDestroy } from "svelte";
 	import Recipe from "./Recipe.svelte";
+	import { ingredients } from "../store";
+	import { queue } from "./utils/ingredient_fetcher";
 
 	export let id: IngredientObject["id"];
-
-	const ingredients = new Map<IngredientObject["id"], IngredientObject>();
-	ingredients
-		.set(
-			"10",
-			{
-				id: "10",
-				title: "Картошка",
-			}
-		)
-		.set(
-			"12",
-			{
-				id: "12",
-				title: "Бульон",
-				recipe: "44",
-			}
-		)
-		.set(
-			"1",
-			{
-				id: "1",
-				title: "Соль",
-			}
-		)
-		.set(
-			"5",
-			{
-				id: "5",
-				title: "Мука пшеничная",
-			}
-		)
-		.set(
-			"7",
-			{
-				id: "7",
-				title: "Молоко коровье",
-			}
-		)
-	;
-
-	const item = ingredients.get(id);
-	const bg = "bg-emerald-50";
+	export let bg = "bg-emerald-200";
 
 	let showRecipe = false;
+
+	let item: IngredientObject | undefined | null;
+
+	const unsub = ingredients.subscribe(value => {
+		item = value.get(id);
+	});
+
+	if (!item) {
+		queue(id, "api/ingredients", ingredients);
+	}
+
+	onDestroy(unsub);
 </script>
 
-<article class="grid text-lg">
+<article class="rounded {bg} flex flex-wrap">
 	{#if item}
 		{#if item.recipe}
+			{#if !showRecipe}
+				<span class="flex-1">{item.title}</span>
+			{/if}
 			<button
-				class="rounded border {bg} hover:bg-emerald-200 w-fit"
+				class="bg-red-200 flex-1"
 				on:click={() => showRecipe = !showRecipe}
 			>
-				{item.title}
+				{#if showRecipe}
+					Закрыть
+				{:else}
+					Раскрыть
+				{/if}
 			</button>
 			{#if showRecipe}
-				<Recipe id={item.recipe} bg={bg} />
+				<div class="basis-full">
+					<Recipe id={item.recipe} bg={bg} />
+				</div>
 			{/if}
 		{:else}
 			<span>{item.title}</span>
 		{/if}
 	{:else}
-		Ой, нет ингредиента с id "{id}".
+		<span>...</span>
 	{/if}
 </article>

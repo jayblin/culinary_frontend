@@ -28,4 +28,7 @@ const _recipes = new Map<RecipeObject["id"], RecipeObject>()
 	)
 ;
 
+const _ingredients = new Map<IngredientObject["id"], IngredientObject>();
+
 export const recipes = writable(_recipes);
+export const ingredients = writable(_ingredients);
