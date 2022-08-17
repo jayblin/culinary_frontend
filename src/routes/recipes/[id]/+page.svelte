@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import { recipes } from "../../store";
+	import { recipes } from "../../../store";
 
 
 	const item = $recipes.get($page.params["id"]);
